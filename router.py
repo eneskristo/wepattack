@@ -12,15 +12,12 @@ class Router:
     def getIV(self):
         return [self.counter % 256]
 
-    def newKey(self):
-        toReturn = []
-        toReturn.extend(self.getIV())
-        toReturn.extend(self.key)
-        return toReturn
+    def getKey(self):
+        return self.key
 
-    def RC4(self, n):
-        cKey = self.newKey()
-        self.KSA(cKey)
+    def RC4(self, n, iv):
+        iv.extend(self.getKey())
+        self.KSA(iv)
         return self.PRGA(n)
 
     def KSA(self, key):
@@ -48,9 +45,16 @@ class Router:
         self.counter += 1
         message = message + self.checkSum(message)
         l = len(message)
-        encrpyt = self.RC4(l)
+        encrpyt = self.RC4(l, self.getIV())
         newmessage = [chr(x) for x in self.getIV()]
         newmessage.extend([chr(ord(message[i]) ^ encrpyt[i]) for i in range(l)])
+        return newmessage
+
+    def decrypt(self, message):
+        decrypt = self.RC4(len(message)-len(self.getIV()), [ord(x) for x in message[:len(self.getIV())]])
+        print(decrypt)
+        print(message)
+        newmessage = [chr(ord(message[i]) ^ decrypt[i-1]) for i in range(1,len(message))]
         return newmessage
 
     def checkSum(self, message):
