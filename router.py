@@ -4,7 +4,7 @@ import random
 class Router:
 
     def __init__(self, N, key):
-        self.S = [x for x in range(N)]
+        self.S = []
         self.N = N
         self.key = key
         self.counter = 0
@@ -16,6 +16,7 @@ class Router:
         return self.key
 
     def RC4(self, n, iv):
+        self.S = [x for x in range(self.N)]
         iv.extend(self.getKey())
         self.KSA(iv)
         return self.PRGA(n)
@@ -52,8 +53,6 @@ class Router:
 
     def decrypt(self, message):
         decrypt = self.RC4(len(message)-len(self.getIV()), [ord(x) for x in message[:len(self.getIV())]])
-        print(decrypt)
-        print(message)
         newmessage = [chr(ord(message[i]) ^ decrypt[i-1]) for i in range(1,len(message))]
         return newmessage
 
