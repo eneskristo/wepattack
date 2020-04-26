@@ -11,7 +11,6 @@ class Hack:
 
     def solveWEP(self):
         # Uses current packets to try and solve WEP
-        print(len(self.Packets))
         key = [None] * (self.ivsize + self.keyLength)
         for k in range(self.keyLength):
             prob = [0] * self.charsize
@@ -28,16 +27,9 @@ class Hack:
                     S[j] = helper
                     i+=1
                 if S[1]+S[S[1]] == i and S[1] < self.ivsize:
-                    keyStreamByte = ord(packet[self.ivsize]) ^ self.byteone
-                    keyByte = (keyStreamByte - j - S[i]) % 256
+                    byte = ord(packet[self.ivsize]) ^ self.byteone
+                    keyByte = (byte - j - S[i]) % 256
                     prob[keyByte] += 1
             key[self.ivsize+k] = prob.index(max(prob))
-            print(prob[ord("B")])
-            print(prob[ord("l")])
-            print(prob[ord("a")])
-            print(prob[ord("n")])
-            print(prob[ord("k")])
-            print(sum(prob))
-            print("===")
         return [chr(x) for x in key[self.ivsize:]]
 
