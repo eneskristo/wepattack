@@ -8,9 +8,18 @@ class Router:
         self.N = N
         self.key = key
         self.counter = 0
+        self.byteone = "s"
 
     def getIV(self):
-        return [self.counter % 256]
+        IV = []
+        helper = self.counter
+        IV.append(helper%256)
+        helper = ((helper-helper%256)//256)
+        IV.append(helper%256)
+        helper = ((helper-helper%256)//256)
+        IV.append(helper%256)
+        return IV[::-1]
+
 
     def getKey(self):
         return self.key
@@ -44,7 +53,7 @@ class Router:
 
     def encrypt(self, message):
         self.counter += 1
-        message = message + self.checkSum(message)
+        message = self.byteone + message + self.checkSum(message)
         l = len(message)
         encrpyt = self.RC4(l, self.getIV())
         newmessage = [chr(x) for x in self.getIV()]
@@ -53,8 +62,8 @@ class Router:
 
     def decrypt(self, message):
         decrypt = self.RC4(len(message)-len(self.getIV()), [ord(x) for x in message[:len(self.getIV())]])
-        newmessage = [chr(ord(message[i]) ^ decrypt[i-1]) for i in range(1,len(message))]
+        newmessage = [chr(ord(message[i]) ^ decrypt[i-len(self.getIV())]) for i in range(len(self.getIV()),len(message))]
         return newmessage
 
     def checkSum(self, message):
-        return str(len(message))
+        return str(len(message)%256)
